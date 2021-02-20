@@ -1,0 +1,20 @@
+.sortField{
+  text-decoration: underline;
+}
+
+.direct::after{
+  content: '\2193';
+  display: inline-block;
+  margin-left: 5px;
+  width: 10px;
+  height: 10px;
+}
+
+.reverse::after{
+  content: '\2191';
+  display: inline-block;
+  margin-left: 5px;
+  width: 10px;
+  height: 10px;
+ 
+}

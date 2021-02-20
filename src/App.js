@@ -1,57 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+import React, { useEffect, useState } from 'react';
+import { TableComponent } from './features/tableComponent/TableComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchData } from './app/dataSlice';
+import { Container, Form, Row, Col, Button } from 'react-bootstrap';
+import { OptionsBar } from './features/optionsBar/OptionsBar';
+import { AddDataForm } from './features/addDataForm/AddDataForm';
+import { DetailData } from './features/detailData/DetailData';
+
 function App() {
+  const dispatch=useDispatch();
+  //загрузка данных с сервера
+  const dataStatus=useSelector((state)=>({
+    status: state.data.status,
+    error:state.data.error,
+  }));
+  useEffect(()=>{
+    if (dataStatus.status==='idle'){
+      dispatch(fetchData());
+    }
+  },[dataStatus,dispatch])
+
+
+  //хуки для настроек
+  const [displayMode, setDisplayMode]=useState('smallData') //стринга не круто
+  const [sortMode,setSortMode]=useState({
+    field:'id',
+    isDirect:true, 
+  });
+  const [textFilter, setTextFilter]=useState('');
+
+    //хук для выбора строки
+    const [currentDataId,setCurrentDataId]=useState(undefined);
+
+    //таблица в зависимости от статуса запроса
+  const contentByStatus={
+    'loading':(<div>Загрузка...</div>),
+    'failed':(<div>Ошибка! {dataStatus.error}</div>),
+    'success':(
+      <TableComponent 
+        setSortMode={setSortMode} 
+        sortMode={sortMode} 
+        textFilter={textFilter}
+        currentDataId={currentDataId}
+        setCurrentDataId={setCurrentDataId}
+      />),
+  }
+
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+      <Container>
+        <OptionsBar setTextFilter={setTextFilter}/>
+        <AddDataForm />
+        {contentByStatus[dataStatus.status]}
+        {currentDataId?(<DetailData currentDataId={currentDataId} />):(<p>Для отображения детальных записей, выделите строку</p>)}
+      </Container>
+   </div>
   );
 }
 
