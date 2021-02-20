@@ -8,7 +8,7 @@ import { TablePagination } from '@material-ui/core';
 
 export function TableComponent(props){
   
-  const tableHeaders=useSelector(selectTableFields);
+  const tableHeaders=useSelector(selectTableFields); 
   const {
     sortMode, 
     textFilter, 

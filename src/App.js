@@ -33,10 +33,10 @@ function App() {
   });
   const [textFilter, setTextFilter]=useState('');
 
-    //хук для выбора строки
-    const [currentDataId,setCurrentDataId]=useState(undefined);
+  //хук для выбора строки
+  const [currentDataId,setCurrentDataId]=useState(undefined);
 
-    //таблица в зависимости от статуса запроса
+  //таблица в зависимости от статуса запроса
   const contentByStatus={
     'loading':(<div>Загрузка...</div>),
     'failed':(<div>Ошибка! {dataStatus.error}</div>),
@@ -54,7 +54,7 @@ function App() {
   return (
     <div className="App">
       <Container>
-        <OptionsBar setTextFilter={setTextFilter}/>
+        <OptionsBar setCurrentDataId={setCurrentDataId} setTextFilter={setTextFilter}/>
         <AddDataForm />
         {contentByStatus[dataStatus.status]}
         {currentDataId?(<DetailData currentDataId={currentDataId} />):(<p>Для отображения детальных записей, выделите строку</p>)}

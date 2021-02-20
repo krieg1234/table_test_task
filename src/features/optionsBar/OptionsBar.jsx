@@ -1,22 +1,28 @@
 import React, {useState} from 'react';
 import {Form, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchData } from '../../app/dataSlice';
 
 export function OptionsBar(props){
   const dispatch=useDispatch();
-  const { setTextFilter}=props;
+  const { setTextFilter, setCurrentDataId}=props;
+
   const [textFilterInputValue, setTextFilterInputValue]=useState('');
-  const [displayMode, setDisplayMode]=useState('small');
+  const [displayMode, setDisplayMode]=useState('small');//строчные параметры не очень
+
+  //лоя блокировки кнопок при загрузке данных
+  const dataStatus=useSelector((state)=>(state.data.status));
+
   return (
   <div className='optionBar'>
     <div className='displayMode-options my-5'>
       <p>Набор данных:</p>
       <ButtonGroup>
-        <Button disabled={displayMode==='big'} onClick={()=>{
+        <Button disabled={displayMode==='big'||dataStatus!=='success'} onClick={()=>{
+          setCurrentDataId(undefined);
           setDisplayMode('big');
           dispatch(fetchData('big'))}}>Большой</Button>
-        <Button disabled={displayMode==='small'} onClick={()=>{
+        <Button disabled={displayMode==='small'||dataStatus!=='success'} onClick={()=>{
           setDisplayMode('small');
           dispatch(fetchData('small'))}}>Маленький</Button>
       </ButtonGroup>
@@ -36,7 +42,7 @@ export function OptionsBar(props){
               onChange={(e)=>setTextFilterInputValue(e.target.value)} /> 
           </Col>
           <Col sm={6} style={{textAlign:'left'}}>
-              <Button type='submit' disabled={!textFilterInputValue}>Поиск</Button>
+              <Button type='submit' disabled={!textFilterInputValue||dataStatus!=='success'}>Поиск</Button>
           </Col>
         </Form.Group>
       </Form>

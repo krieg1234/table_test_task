@@ -13,7 +13,7 @@ export function DetailData(props){
     address,
     description
   }=useSelector((state)=>state.data.dataById[currentDataId]);
-
+//с проверками на случай отсутствия данных об адресе (возможно стоит сделать красивее)
   return (
     <div className='data-details' style={{textAlign:'left'}}>
       <Row>

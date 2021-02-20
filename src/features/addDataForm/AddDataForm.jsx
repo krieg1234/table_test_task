@@ -3,35 +3,45 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTableFields } from '../../app/dataSlice';
-import { Col, Form, Row,Button } from 'react-bootstrap';
+import { Col, Form, Row,Button, Accordion } from 'react-bootstrap';
 import { addData } from '../../app/dataSlice';
 
  export function AddDataForm(props) {
   const dispatch=useDispatch();
   const formFields=useSelector(selectTableFields);
+  const allData=useSelector((state)=>state.data.allData);
   const defaultInputs=formFields.reduce((acc,field)=>({...acc,[field]:''}),{});
   const formik = useFormik({
      initialValues: {...defaultInputs},
      validationSchema: Yup.object({
-       id: Yup.number('Введите число') //проверь повторки
-       .required('Заполните'),
-       firstName: Yup.string() //валидируй буквы
-      .matches(/\d/,'Буквы')
-       .required('Заполните'),
-       lastName: Yup.string() //валидируй буквы
-         .required('Заполните'),
-       email: Yup.string().email('Неверный формат email').required('Заполните'),
+       id: Yup.string() 
+        .matches(/^[0-9]{1,4}$/,'Неверный формат id') //валидные цифры
+        .required('Заполните')
+        .test('duplicateId', 'Дублирование Id запрещено',  (value)=>!allData.includes(Number(value))),
+       firstName: Yup.string() 
+        .matches( /^([A-Z]{1}[a-z]{2,20})$/,'Неверный формат имени') //валидные буквы и первая заглавная
+        .required('Заполните'),
+       lastName: Yup.string()
+        .matches( /^([A-Z]{1}[a-z]{2,20})$/,'Неверный формат фамилии') //валидные буквы и первая заглавная
+        .required('Заполните'),
+       email: Yup.string()
+        .email('Неверный формат email') //валидные форматы мэйл с @ и .
+        .required('Заполните'),
        phone: Yup.string()
-        .required('Заполните') //валидируй формат
-        // .matches(/^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/, 'Неверный формат номера')
+        .required('Заполните') 
+        .matches(/^[(]{1}[0-9]{3}\)[0-9]{3}[-]{1}[0-9]{4}$/, 'Неверный формат номера') //валидны (ххх)ххх-хххх цифры
      }),
      onSubmit: values => {
       dispatch(addData(values));
      },
    });
+   const dataStatus=useSelector((state)=>(state.data.status));
    return (
-     <Form onSubmit={formik.handleSubmit}>
-      <Row>
+     <Accordion>
+       <Accordion.Toggle as={Button} variant='link' eventKey='0'>Добавить</Accordion.Toggle>
+       <Accordion.Collapse eventKey='0'>
+        <Form onSubmit={formik.handleSubmit}>
+          <Row>
             {formFields.map(field=>(
               <Col key={field+'input'}>
                 <Form.Group>
@@ -52,51 +62,12 @@ import { addData } from '../../app/dataSlice';
           </Row>
           <Row>
             <Col>
-              <Button type='submit'>Добавить в таблицу</Button>
+              <Button disabled={dataStatus!=='success'} type='submit'>Добавить в таблицу</Button>
             </Col>            
           </Row>
-
-
-       {/* <label htmlFor="firstName">First Name</label>
-       <input
-         id="firstName"
-         name="firstName"
-         type="text"
-         onChange={formik.handleChange}
-         onBlur={formik.handleBlur}
-         value={formik.values.firstName}
-       />
-       {formik.touched.firstName && formik.errors.firstName ? (
-         <div>{formik.errors.firstName}</div>
-       ) : null}
- 
-       <label htmlFor="lastName">Last Name</label>
-       <input
-         id="lastName"
-         name="lastName"
-         type="text"
-         onChange={formik.handleChange}
-         onBlur={formik.handleBlur}
-         value={formik.values.lastName}
-       />
-       {formik.touched.lastName && formik.errors.lastName ? (
-         <div>{formik.errors.lastName}</div>
-       ) : null}
- 
-       <label htmlFor="email">Email Address</label>
-       <input
-         id="email"
-         name="email"
-         type="email"
-         onChange={formik.handleChange}
-         onBlur={formik.handleBlur}
-         value={formik.values.email}
-       />
-       {formik.touched.email && formik.errors.email ? (
-         <div>{formik.errors.email}</div>
-       ) : null}
- 
-       <button type="submit">Submit</button> */}
-     </Form>
+        </Form>
+       </Accordion.Collapse>
+     </Accordion>
+    
    );
  };
